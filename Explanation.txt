@@ -1,0 +1,151 @@
+from collections import deque
+
+def bfs(graph):
+    """Breadth-First Search (BFS)"""
+    
+    # 1️⃣ Initialize the queue with the starting node (origin) and its path
+    queue = deque([(graph.origin, [graph.origin])])  
+    
+    # 2️⃣ Create a set to track visited nodes
+    visited = set()  
+
+    while queue:  # 3️⃣ Loop until queue is empty
+        node, path = queue.popleft()  # 4️⃣ Remove the first element from the queue (FIFO)
+        
+        if node in visited:
+            continue  # If already visited, skip it
+        
+        visited.add(node)  # 5️⃣ Mark node as visited
+
+        # 6️⃣ If destination is found, return the path and visited count
+        if node in graph.destinations:  
+            return path, len(visited)  
+
+        # 7️⃣ Explore neighbors
+        for neighbor, _ in graph.get_neighbors(node):  
+            if neighbor not in visited:  
+                queue.append((neighbor, path + [neighbor]))  # 8️⃣ Add neighbor to queue with updated path
+
+    return None, len(visited)  # If no path found
+
+
+This is the bfs code
+ 
+Step-by-Step Explanation of BFS Code
+
+
+Line 1 - def bfs(graph):
+This defines the BFS function, which takes a graph object as input.  
+graph contains nodes, edges, origin, and destination.  
+The function aims to find he shortest path from graph.origin to one of graph.destinations.  
+
+Line 2 - queue = deque([(graph.origin, [graph.origin])])  # Queue stores (node, path)
+
+Initialize a queue using a deque (double-ended queue).  
+- The queue will store tuples in the format (current_node, path_to_node).  
+- We start with the origin node and its path as [graph.origin].  
+- Why a queue?
+  - BFS explores nodes level by level (FIFO - First In, First Out).  
+  - Nodes at the same depth are explored before moving deeper.  
+
+
+Line 3 - visited = set()  # To track visited nodes
+
+Create an empty set visited to store nodes that have already been explored.  
+  - Why needed?
+  - Prevents revisiting nodes.  
+  - Avoids infinite loops in cyclic graphs.  
+
+
+Line 4 - while queue:
+```
+   loop runs until the queue is empty.  
+- Each iteration processes one node from the queue.  
+- If the queue becomes empty before reaching the destination, it means no path exists.  
+
+
+
+Line 5 -  node, path = queue.popleft()  # Get first node from queue
+Remove (dequeue) the first node from the queue (FIFO order).  
+- node → The current node being processed.  
+- path → The path taken to reach this node.  
+
+Line 6 -    if node in visited:
+            continue
+
+Check if the node has already been visited.  
+- If yes, skip processing (to avoid cycles).  
+- If no, continue with the next steps.  
+
+Example:
+- If node = 2 is already in visited, we skip it and move to the next node in the queue.  
+
+
+Line 7 -   visited.add(node)  # Mark node as visited
+Mark the current node as visited by adding it to the visited set.  
+- This ensures we don’t process the same node twice.  
+
+Line 8 -   if node in graph.destinations:  # Goal reached
+            return path, len(visited)
+Check if the current node is a destination.  
+- If yes, return:  
+  - path → The sequence of nodes taken to reach the destination.  
+  - len(visited) → The number of nodes explored before finding the goal.  
+
+
+Line 9 - for neighbor, _ in graph.get_neighbors(node):  # Explore neighbors
+
+Loop through all neighbors of the current node.  
+- graph.get_neighbors(node) returns a list of (neighbor, cost) pairs.  
+- _ means we ignore the cost (not needed for BFS).  
+
+
+Line 10 -   if neighbor not in visited:
+          queue.append((neighbor, path + [neighbor]))  # Add neighbor to queue
+
+If the neighbor is not visited, add it to the queue.  
+- Append a tuple:  
+  - `neighbor` (next node to explore).  
+  - `path + [neighbor]` (updated path including this node).  
+- **Why add to the queue?**  
+  - BFS ensures that we explore all **same-level nodes first** before going deeper.  
+
+
+Linke 11 - return None, len(visited)  # No path found
+```
+If the queue is empty but no destination was reached, return `None`.  
+- This means **no possible path exists** from `graph.origin` to `graph.destinations`.  
+- Also returns `len(visited)` (number of nodes explored).  
+
+Example (If Node `4` is unreachable):
+
+Return: (None, explored_nodes_count)
+
+\\
+
+
+
+
+
+
+
+Step-by-Step Example Execution
+##    Graph
+
+   1 → 2 → 3 → 4
+
+- Edges: (1 → 2), (2 → 3), (3 → 4)  
+- Start: `1`  
+- Destination: `4`  
+
+ BFS Execution Table
+ Step | Queue | Visited Nodes | Path |
+|------|-------|--------------|------|
+| 1    | `[(1, [1])]`  | `{}`  | `[1]` |
+| 2    | `[(2, [1, 2])]`  | `{1}` | `[1 → 2]` |
+| 3    | `[(3, [1, 2, 3])]`  | `{1, 2}` | `[1 → 2 → 3]` |
+| 4    | `[(4, [1, 2, 3, 4])]`  | `{1, 2, 3}` | `[1 → 2 → 3 → 4]` |
+| Found Destination!| - | `{1, 2, 3, 4}` | **`1 → 2 → 3 → 4`** |
+
+Path Found: `1 → 2 → 3 → 4`  
+Nodes Explored: `4`  
